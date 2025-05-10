@@ -1,0 +1,127 @@
+services:
+  wisave.subscriptions.webjob.domain:
+    image: wisave.subscriptions.webjob.domain
+    build:
+      context: .
+      dockerfile: src/WiSave.Subscriptions.WebJob.Domain/Dockerfile
+    networks:
+      - wisave.subscriptions
+
+  wisave.subscriptions.webapi:
+    image: wisave.subscriptions.webapi
+    container_name: wisave.subscriptions.webapi
+    build:
+      context: .
+      dockerfile: src/WiSave.Subscriptions.WebApi/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    volumes:
+      - ./https:/https:ro
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "https://+:5001;http://+:5000"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/subscriptions.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "Subs1234!"
+    networks:
+      - wisave.subscriptions
+    restart: unless-stopped
+
+  wisave.subscriptions.webjob.projections:
+    image: wisave.subscriptions.webjob.projections
+    build:
+      context: .
+      dockerfile: src/WiSave.Subscriptions.WebJob.Projections/Dockerfile
+    networks:
+      - wisave.subscriptions
+  
+  wisave.database:
+    image: postgres:15
+    container_name: wisave.database
+    environment:
+      POSTGRES_USER: wisave
+      POSTGRES_PASSWORD: wisave
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U wisave" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - wisave_subscriptions_db_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql
+    networks:
+      - wisave.subscriptions
+    restart: unless-stopped
+    
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - wisave.subscriptions
+    restart: unless-stopped
+      
+  wisave.rabbitmq:
+    image: rabbitmq:management
+    container_name: wisave.rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: wisave
+      RABBITMQ_DEFAULT_PASS: wisave
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-lib:/var/lib/rabbitmq
+      - rabbitmq-log:/var/log/rabbitmq
+      - ./rabbitmq-definitions.json:/opt/definitions.json:ro
+      - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+    configs:
+      - source: rabbitmq-plugins
+        target: /etc/rabbitmq/enabled_plugins
+    networks:
+      - wisave.subscriptions
+    restart: unless-stopped
+
+  seq:
+    image: datalust/seq
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5341:80"
+    networks:
+      - wisave.subscriptions
+    restart: unless-stopped
+    
+configs:
+  rabbitmq-plugins:
+    content: "[rabbitmq_management]."
+    
+networks:
+  wisave.subscriptions:
+    driver: bridge
+
+volumes:
+  wisave_subscriptions_db_data:
+    driver: local
+  rabbitmq-lib:
+    driver: local
+  rabbitmq-log:
+    driver: local
+  pgadmin:
+    driver: local

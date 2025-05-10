@@ -1,0 +1,38 @@
+{
+  "vhosts": [
+    {
+      "name": "subscriptions"
+    },
+    {
+      "name": "identity"
+    }
+  ],
+  "users": [
+    {
+      "name": "wisave",
+      "password": "wisave",
+      "tags": "administrator"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "wisave",
+      "vhost": "subscriptions",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "wisave",
+      "vhost": "identity",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "parameters": [],
+  "policies": [],
+  "queues": [],
+  "exchanges": [],
+  "bindings": []
+}

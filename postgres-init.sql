@@ -1,0 +1,1 @@
+CREATE DATABASE wisave_subscriptions_eventstore;

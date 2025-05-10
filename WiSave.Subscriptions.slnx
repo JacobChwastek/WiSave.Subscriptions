@@ -1,1 +1,27 @@
-﻿<Solution />
+﻿<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="compose.yaml" />
+    <File Path="postgres-init.sql" />
+    <File Path="rabbitmq-definitions.json" />
+    <File Path="rabbitmq.config" />
+    <File Path="NuGet.Config" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src\WiSave.Subscriptions.Contracts\WiSave.Subscriptions.Contracts.csproj" Type="Classic C#" />
+    <Project Path="src\WiSave.Subscriptions.WebApi\WiSave.Subscriptions.WebApi.csproj" Type="Classic C#" />
+    <Project Path="src\WiSave.Subscriptions.WebJob.Domain\WiSave.Subscriptions.WebJob.Domain.csproj" Type="Classic C#" />
+    <Project Path="src\WiSave.Subscriptions.WebJob.Projections\WiSave.Subscriptions.WebJob.Projections.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/src/Core/">
+    <Project Path="src\Core\WiSave.Subscriptions.Application\WiSave.Subscriptions.Application.csproj" Type="Classic C#" />
+    <Project Path="src\Core\WiSave.Subscriptions.Domain\WiSave.Subscriptions.Domain.csproj" Type="Classic C#" />
+    <Project Path="src\Core\WiSave.Subscriptions.Infrastructure\WiSave.Subscriptions.Infrastructure.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/src/Projections/">
+    <Project Path="src\Projections\WiSave.Subscriptions.Projections\WiSave.Subscriptions.Projections.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src\Shared\WiSave.Subscriptions.MassTransit\WiSave.Subscriptions.MassTransit.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>

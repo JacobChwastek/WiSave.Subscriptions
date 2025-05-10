@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MassTransit" Version="8.4.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4"/>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.2.7" />
+        <PackageReference Include="wisave.shared.masstransit" Version="1.1.13" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Shared\WiSave.Subscriptions.MassTransit\WiSave.Subscriptions.MassTransit.csproj" />
+      <ProjectReference Include="..\WiSave.Subscriptions.Contracts\WiSave.Subscriptions.Contracts.csproj" />
+    </ItemGroup>
+
+</Project>

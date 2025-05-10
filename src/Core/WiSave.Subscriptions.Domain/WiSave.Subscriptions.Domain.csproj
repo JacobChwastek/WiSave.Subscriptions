@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="WiSave.Subscriptions.Application" />
+        <InternalsVisibleTo Include="WiSave.Subscriptions.Infrastructure" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\..\WiSave.Subscriptions.Contracts\WiSave.Subscriptions.Contracts.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="WiSave.Shared.EventStore" Version="1.0.1217" />
+      <PackageReference Include="WiSave.Shared.Types" Version="1.0.15207" />
+    </ItemGroup>
+    
+</Project>
