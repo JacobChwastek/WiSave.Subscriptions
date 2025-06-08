@@ -1,9 +1,19 @@
+version: '3.8'
+
 services:
   wisave.subscriptions.webjob.domain:
     image: wisave.subscriptions.webjob.domain
     build:
       context: .
       dockerfile: src/WiSave.Subscriptions.WebJob.Domain/Dockerfile
+    networks:
+      - wisave.subscriptions
+  
+  wisave.subscriptions.webjob.projections:
+    image: wisave.subscriptions.webjob.projections
+    build:
+      context: .
+      dockerfile: src/WiSave.Subscriptions.WebJob.Projections/Dockerfile
     networks:
       - wisave.subscriptions
 
@@ -21,29 +31,33 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "https://+:5001;http://+:5000"
-      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/subscriptions.pfx
-      ASPNETCORE_Kestrel__Certificates__Default__Password: "Subs1234!"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${ASPNETCORE_Kestrel__Certificates__Default__Password}
     networks:
       - wisave.subscriptions
     restart: unless-stopped
 
-  wisave.subscriptions.webjob.projections:
-    image: wisave.subscriptions.webjob.projections
-    build:
-      context: .
-      dockerfile: src/WiSave.Subscriptions.WebJob.Projections/Dockerfile
+  projections:
+    image: mongo:7.0
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
     networks:
       - wisave.subscriptions
-  
-  wisave.database:
+
+  eventstore:
     image: postgres:15
-    container_name: wisave.database
     environment:
-      POSTGRES_USER: wisave
-      POSTGRES_PASSWORD: wisave
-      POSTGRES_DB: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U wisave" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -55,28 +69,28 @@ services:
     networks:
       - wisave.subscriptions
     restart: unless-stopped
-    
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
-      - "${PGADMIN_PORT:-5050}:80"
+      - "5050:80"
     volumes:
       - pgadmin:/var/lib/pgadmin
     networks:
       - wisave.subscriptions
     restart: unless-stopped
-      
+
   wisave.rabbitmq:
     image: rabbitmq:management
     container_name: wisave.rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: wisave
-      RABBITMQ_DEFAULT_PASS: wisave
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
       interval: 30s
@@ -107,11 +121,11 @@ services:
     networks:
       - wisave.subscriptions
     restart: unless-stopped
-    
+
 configs:
   rabbitmq-plugins:
-    content: "[rabbitmq_management]."
-    
+    content: "[rabbitmq_management, rabbitmq_delayed_message_exchange]."
+
 networks:
   wisave.subscriptions:
     driver: bridge
@@ -122,6 +136,8 @@ volumes:
   rabbitmq-lib:
     driver: local
   rabbitmq-log:
+    driver: local
+  mongo-data:
     driver: local
   pgadmin:
     driver: local

@@ -27,6 +27,7 @@ internal sealed class Subscription : Aggregate<SubscriptionId>
         
         var @event = new SubscriptionCreated(
             new SubscriptionId(Guid.CreateVersion7()),
+            Guid.CreateVersion7(),
             name,
             plan,
             price,

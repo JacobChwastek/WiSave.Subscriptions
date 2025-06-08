@@ -7,7 +7,6 @@ using WiSave.Shared.MassTransit;
 using WiSave.Shared.OpenTelemetry.OpenTelemetry;
 using WiSave.Subscriptions.Application;
 using WiSave.Subscriptions.Application.CommandHandlers;
-using WiSave.Subscriptions.Application.Sagas;
 using WiSave.Subscriptions.Domain.Subscriptions;
 using WiSave.Subscriptions.Infrastructure.OpenTelemetry;
 using WiSave.Subscriptions.MassTransit;
@@ -38,7 +37,7 @@ internal static class Extensions
         services
             .AddOpenTelemetryInfrastructure(configuration, environment)
             .AddMartenRepository<Subscription>()
-            .AddMessaging<ISubscriptionBus>(rabbitMqConfiguration, consumerTypes: [typeof(CreateSubscriptionHandler), typeof(DelayedCommandSaga)])
+            .AddMessaging<ISubscriptionBus>(rabbitMqConfiguration, consumerTypes: [typeof(CreateSubscriptionHandler)])
             .AddApplication(configuration);
 
         return services;

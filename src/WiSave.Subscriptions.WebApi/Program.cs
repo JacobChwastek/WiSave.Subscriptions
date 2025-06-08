@@ -1,5 +1,6 @@
 using Scalar.AspNetCore;
 using WiSave.Shared.MassTransit;
+using WiSave.Subscriptions.Contracts.Queries;
 using WiSave.Subscriptions.MassTransit;
 using WiSave.Subscriptions.WebApi;
 
@@ -21,24 +22,57 @@ builder.Services.AddCors(opt =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevelopmentCors", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5050", 
+                "https://localhost:5051",
+                "http://localhost:4200",
+                "http://localhost:4201",
+                "http://localhost:3000",
+                "https://localhost:4200",
+                "https://localhost:4201"
+            )
+            .AllowAnyMethod()  
+            .AllowAnyHeader()          
+            .AllowCredentials();          
+    });
+    
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
+
 var rabbitMqConfiguration = builder.Configuration
     .GetSection("Messaging:Subscriptions")
     .Get<RabbitMqConfiguration>() ?? new RabbitMqConfiguration();
 
-builder.Services.AddMessaging<ISubscriptionBus>(rabbitMqConfiguration);
+builder.Services.AddMessaging<ISubscriptionBus>(rabbitMqConfiguration, configureMassTransit: x =>
+{
+    x.AddRequestClient<GetSubscriptionsQuery>();
+    x.AddRequestClient<GetSubscriptionQuery>();
+});
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference((options, httpContext) =>
+    app.MapScalarApiReference((options, _) =>
     {
         options
             .WithTitle("WiSave Subscriptions API")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
-    app.UseCors("AllowSwaggerUI");
+    app.UseCors("DevelopmentCors");
 }
 
 app.UseHttpsRedirection();

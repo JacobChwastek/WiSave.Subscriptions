@@ -1,10 +1,9 @@
 using WiSave.Shared.Types;
 
-namespace WiSave.Subscriptions.Contracts.Events;
+namespace WiSave.Subscriptions.Contracts.Dtos;
 
-public sealed record SubscriptionCreated(
-    SubscriptionId Id,
-    Guid UserId,
+public record SubscriptionDto(
+    Guid Id,
     string Name,
     string Plan,
     Money Money,

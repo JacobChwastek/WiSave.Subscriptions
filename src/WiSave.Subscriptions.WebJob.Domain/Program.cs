@@ -1,12 +1,15 @@
-﻿using MassTransit.Courier.Contracts;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using WiSave.Shared.EventStore.Marten.Repository;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using WiSave.Subscriptions.Infrastructure;
 
-
 var builder = new HostBuilder();
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .CreateLogger();
 
 builder
     .UseEnvironment(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development");

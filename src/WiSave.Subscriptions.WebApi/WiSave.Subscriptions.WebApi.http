@@ -1,6 +1,24 @@
-@WiSave.Subscriptions.WebApi_HostAddress = http://localhost:5193
+### Create a new subscription
+POST https://localhost:5001/subscriptions
+Content-Type: application/json
 
-GET {{WiSave.Subscriptions.WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
+{
+  "Id": "00000000-0000-0000-0000-000000000001",
+  "UserId": "00000000-0000-0000-0000-000000000002",
+  "Name": "Jakub",
+  "Plan": "Pro Plan",
+  "Money": {
+    "Amount": 29.99,
+    "Currency": "EUR"
+  },
+  "PeriodUnit": "Month",
+  "PeriodInterval": 1,
+  "AutoRenew": true,
+  "StartDate": "2025-05-16",
+  "IsTrial": false,
+  "MaxRenewals": null,
+  "TrialDurationInDays": null
+}
 
-###
+### Get all subscriptions
+GET https://localhost:5001/subscriptions

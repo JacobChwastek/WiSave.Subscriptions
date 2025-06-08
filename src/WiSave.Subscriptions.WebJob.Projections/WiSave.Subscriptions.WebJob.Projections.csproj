@@ -14,4 +14,15 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.41" />
+        <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Projections\WiSave.Subscriptions.Projections\WiSave.Subscriptions.Projections.csproj" />
+    </ItemGroup>
+
+
 </Project>

@@ -8,5 +8,7 @@ public class DelayedCommandSaga : IConsumer<SubscriptionCreated>
     public async Task Consume(ConsumeContext<SubscriptionCreated> context)
     {
         var message = context.Message;
+        
+        
     }
 }
