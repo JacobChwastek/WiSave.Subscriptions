@@ -1,13 +1,13 @@
 ﻿<Solution>
   <Folder Name="/Solution Items/">
-    <File Path="compose.yaml" />
-    <File Path="postgres-init.sql" />
-    <File Path="rabbitmq-definitions.json" />
-    <File Path="rabbitmq.config" />
     <File Path="NuGet.Config" />
     <File Path=".env" />
     <File Path=".gitignore" />
     <File Path=".env.local" />
+  </Folder>
+  <Folder Name="/Solution Items/compose/">
+    <File Path="compose.subscriptions.yaml" />
+    <File Path="postgres-init.sql" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src\WiSave.Subscriptions.Contracts\WiSave.Subscriptions.Contracts.csproj" Type="Classic C#" />
@@ -27,8 +27,6 @@
     <Project Path="src\Shared\WiSave.Subscriptions.MassTransit\WiSave.Subscriptions.MassTransit.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/tests/" />
-  <Folder Name="/tests/Integration/">
-    <Project Path="tests\WiSave.Subscriptions.Projection.Integration.Tests\WiSave.Subscriptions.Projection.Integration.Tests.csproj" Type="Classic C#" />
-  </Folder>
+  <Folder Name="/tests/Integration/" />
   <Folder Name="/tests/Unit/" />
 </Solution>

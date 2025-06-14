@@ -1,0 +1,118 @@
+# Removed obsolete version field
+services:
+  # Domain processing service
+  subscriptions-domain-webjob:
+    image: wisave.subscriptions.webjob.domain
+    container_name: subscriptions-domain-webjob
+    build:
+      context: .
+      dockerfile: src/WiSave.Subscriptions.WebJob.Domain/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - infrastructure
+    restart: unless-stopped
+    depends_on:
+      subscriptions-eventstore:
+        condition: service_healthy
+
+  # Projections processing service
+  subscriptions-projections-webjob:
+    image: wisave.subscriptions.webjob.projections
+    container_name: subscriptions-projections-webjob
+    build:
+      context: .
+      dockerfile: src/WiSave.Subscriptions.WebJob.Projections/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - infrastructure
+    restart: unless-stopped
+    depends_on:
+      subscriptions-projections-db:
+        condition: service_started
+      subscriptions-eventstore:
+        condition: service_healthy
+
+  # Web API service
+  subscriptions-api:
+    image: wisave.subscriptions.webapi
+    container_name: subscriptions-api
+    build:
+      context: .
+      dockerfile: src/WiSave.Subscriptions.WebApi/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    volumes:
+      - ./https:/https:ro
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:5001;http://+:5000
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${ASPNETCORE_Kestrel__Certificates__Default__Password}
+    networks:
+      - infrastructure
+    restart: unless-stopped
+    depends_on:
+      subscriptions-eventstore:
+        condition: service_healthy
+      subscriptions-projections-db:
+        condition: service_started
+
+  # MongoDB for projections/read models
+  subscriptions-projections-db:
+    image: mongo:7.0
+    container_name: subscriptions-projections-db
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=wisave_subscriptions_projections
+    volumes:
+      - subscriptions_projections_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - infrastructure
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # PostgreSQL for event store
+  subscriptions-eventstore:
+    image: postgres:15
+    container_name: subscriptions-eventstore
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=postgres
+      - POSTGRES_MULTIPLE_DATABASES=wisave_subscriptions_eventstore
+    volumes:
+      - subscriptions_eventstore_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql:ro
+    networks:
+      - infrastructure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d wisave_subscriptions_eventstore"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+# External infrastructure network (created by infrastructure setup)
+networks:
+  infrastructure:
+    external: true
+
+# Named volumes for data persistence
+volumes:
+  subscriptions_projections_data:
+    name: wisave_subscriptions_projections_data
+  subscriptions_eventstore_data:
+    name: wisave_subscriptions_eventstore_data
