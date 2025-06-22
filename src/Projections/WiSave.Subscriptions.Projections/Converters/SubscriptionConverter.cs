@@ -11,6 +11,7 @@ internal static class SubscriptionConverter
         {
             Id = @event.Id,
             Name = @event.Name,
+            UserId = @event.UserId,
             Plan = @event.Plan,
             Money = @event.Money,
             PeriodUnit = @event.PeriodUnit,

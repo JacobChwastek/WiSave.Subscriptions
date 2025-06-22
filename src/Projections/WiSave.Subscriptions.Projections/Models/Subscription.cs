@@ -14,6 +14,13 @@ public class Subscription
     [BsonElement("name")]
     public string Name { get; set; } = null!;
 
+    [BsonElement("logo")]
+    public string Logo { get; set; }
+
+    [BsonElement("userId")]
+    [BsonRepresentation(BsonType.String)]
+    public Guid UserId { get; set; }
+    
     [BsonElement("plan")]
     public string Plan { get; set; } = null!;
 

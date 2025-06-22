@@ -38,8 +38,7 @@ public class SubscriptionRepository : ISubscriptionRepository
         await _collection.ReplaceOneAsync(filter, model, new ReplaceOptions { IsUpsert = false }, cancellationToken);
     }
 
-    public async Task<(List<Subscription> Items, long TotalCount)> GetFilteredAsync(
-        string? name,
+    public async Task<(List<Subscription> Items, long TotalCount)> GetByUserIdAsync(string userId, string? name,
         string? plan,
         bool? isTrial,
         int skip,
@@ -47,7 +46,9 @@ public class SubscriptionRepository : ISubscriptionRepository
         CancellationToken cancellationToken = default)
     {
         var filters = new List<FilterDefinition<Subscription>>();
-
+        
+        filters.Add(Builders<Subscription>.Filter.Eq(x => x.UserId, Guid.Parse(userId)));
+        
         if (!string.IsNullOrWhiteSpace(name))
             filters.Add(Builders<Subscription>.Filter.Regex(x => x.Name, new BsonRegularExpression(name, "i")));
 
@@ -57,7 +58,7 @@ public class SubscriptionRepository : ISubscriptionRepository
         if (isTrial.HasValue)
             filters.Add(Builders<Subscription>.Filter.Eq(x => x.IsTrial, isTrial));
 
-        var filter = filters.Any() ? Builders<Subscription>.Filter.And(filters) : FilterDefinition<Subscription>.Empty;
+        var filter = filters.Count != 0 ? Builders<Subscription>.Filter.And(filters) : FilterDefinition<Subscription>.Empty;
 
         var totalCount = await _collection.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
 

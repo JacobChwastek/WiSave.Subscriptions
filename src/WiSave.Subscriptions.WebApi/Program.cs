@@ -2,7 +2,8 @@ using Scalar.AspNetCore;
 using WiSave.Shared.MassTransit;
 using WiSave.Subscriptions.Contracts.Queries;
 using WiSave.Subscriptions.MassTransit;
-using WiSave.Subscriptions.WebApi;
+using WiSave.Subscriptions.WebApi.Endpoints;
+using WiSave.Subscriptions.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddRouting();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddOpenApi();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
 
 builder.Services.AddCors(opt =>
 {
@@ -72,11 +74,14 @@ if (app.Environment.IsDevelopment())
             .WithTitle("WiSave Subscriptions API")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
+    
     app.UseCors("DevelopmentCors");
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseEndpoints();
+
+app.MapSubscriptionEndpoints();
+app.MapHealthEndpoints();
 
 app.Run();

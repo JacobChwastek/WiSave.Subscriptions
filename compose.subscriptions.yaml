@@ -49,10 +49,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:5001;http://+:5000
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/subscription-api.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${ASPNETCORE_Kestrel__Certificates__Default__Password}
     networks:
       - infrastructure
+      - wisave-backend
     restart: unless-stopped
     depends_on:
       subscriptions-eventstore:
@@ -105,12 +106,12 @@ services:
       timeout: 10s
       retries: 5
 
-# External infrastructure network (created by infrastructure setup)
 networks:
   infrastructure:
     external: true
+  wisave-backend:
+    external: true
 
-# Named volumes for data persistence
 volumes:
   subscriptions_projections_data:
     name: wisave_subscriptions_projections_data

@@ -3,6 +3,7 @@ using WiSave.Shared.Types;
 namespace WiSave.Subscriptions.Contracts.Commands;
 
 public record CreateSubscription(
+    Guid UserId,
     string Name,
     string Plan,
     Money Money,

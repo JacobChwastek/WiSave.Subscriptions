@@ -3,6 +3,7 @@ using WiSave.Subscriptions.Contracts.Dtos;
 namespace WiSave.Subscriptions.Contracts.Queries;
 
 public record GetSubscriptionsQuery(
+    string? UserId,
     string? Name = null,
     string? Plan = null,
     bool? IsTrial = null

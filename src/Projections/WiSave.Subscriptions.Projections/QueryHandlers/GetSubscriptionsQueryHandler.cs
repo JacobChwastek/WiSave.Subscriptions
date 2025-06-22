@@ -16,7 +16,8 @@ internal class GetSubscriptionsQueryHandler(ISubscriptionRepository repository) 
 
         var skip = (pageNumber - 1) * pageSize;
 
-        var (subscriptions, totalCount) = await repository.GetFilteredAsync(
+        var (subscriptions, totalCount) = await repository.GetByUserIdAsync(
+            query.UserId,
             query.Name,
             query.Plan,
             query.IsTrial,
@@ -26,6 +27,7 @@ internal class GetSubscriptionsQueryHandler(ISubscriptionRepository repository) 
 
         var dtos = subscriptions.Select(s => new SubscriptionDto(
             s.Id,
+            s.Logo,
             s.Name,
             s.Plan,
             s.Money,

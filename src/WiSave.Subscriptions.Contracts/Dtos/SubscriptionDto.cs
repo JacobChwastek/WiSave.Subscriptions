@@ -4,6 +4,7 @@ namespace WiSave.Subscriptions.Contracts.Dtos;
 
 public record SubscriptionDto(
     Guid Id,
+    string Logo,
     string Name,
     string Plan,
     Money Money,

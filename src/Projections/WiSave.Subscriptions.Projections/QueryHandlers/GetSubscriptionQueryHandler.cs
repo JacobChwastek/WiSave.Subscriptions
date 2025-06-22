@@ -14,6 +14,7 @@ public class GetSubscriptionQueryHandler(ISubscriptionRepository repository) : I
         var subscription = await repository.GetByIdAsync(message.Id, context.CancellationToken);
 
         var dto = new SubscriptionDto(subscription.Id, 
+            subscription.Logo,
             subscription.Name, 
             subscription.Plan, 
             subscription.Money, 

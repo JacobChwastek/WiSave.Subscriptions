@@ -10,24 +10,28 @@ namespace WiSave.Subscriptions.Domain.Subscriptions;
 
 internal sealed class Subscription : Aggregate<SubscriptionId>
 {
+    public Guid UserId { get; init; }
     public SubscriptionName Name { get; private set; }
     public DateOnly StartDate { get; private set; }
     public DateOnly? EndDate { get; private set; }
     public SubscriptionStatus Status { get; private set; }
     public RenewalPolicy RenewalPolicy { get; private set; }
     public TrialPeriod? Trial { get; private set; }
-    
-    public Subscription() { }
-    
-    private Subscription(string name, string plan, Money price, PeriodUnit periodUnit, int periodInterval, bool autoRenew, DateOnly startDate, bool isTrial, int? maxRenewals, int? trialDurationInDays)
+
+    public Subscription()
+    {
+    }
+
+    private Subscription(Guid userId, string name, string plan, Money price, PeriodUnit periodUnit, int periodInterval, bool autoRenew, DateOnly startDate, bool isTrial, int? maxRenewals,
+        int? trialDurationInDays)
     {
         new SubscriptionNameSpecification().Check(name);
         new SubscriptionPlanSpecification().Check(plan);
         new SubscriptionPeriodIntervalSpecification().Check(periodInterval);
-        
+
         var @event = new SubscriptionCreated(
             new SubscriptionId(Guid.CreateVersion7()),
-            Guid.CreateVersion7(),
+            userId,
             name,
             plan,
             price,
@@ -38,13 +42,15 @@ internal sealed class Subscription : Aggregate<SubscriptionId>
             isTrial,
             maxRenewals,
             trialDurationInDays
-        );  
-        
+        );
+
         Apply(@event);
         Enqueue(@event);
     }
 
-    public static Subscription Create(CreateSubscription command) => new(command.Name, command.Plan, command.Money, command.PeriodUnit, command.PeriodInterval, command.AutoRenew, DateOnly.FromDateTime(command.StartDate), command.IsTrial, command.MaxRenewals, command.TrialDurationInDays);
+    public static Subscription Create(CreateSubscription command) =>
+        new(command.UserId, command.Name, command.Plan, command.Money, command.PeriodUnit, command.PeriodInterval, command.AutoRenew, DateOnly.FromDateTime(command.StartDate), command.IsTrial,
+            command.MaxRenewals, command.TrialDurationInDays);
 
     private void Apply(SubscriptionCreated @event)
     {
@@ -57,7 +63,6 @@ internal sealed class Subscription : Aggregate<SubscriptionId>
         if (@event.IsTrial && @event.TrialDurationInDays.HasValue && @event.MaxRenewals.HasValue)
         {
             Trial = new TrialPeriod(@event.StartDate, @event.TrialDurationInDays ?? 0);
-            
         }
         else
         {
