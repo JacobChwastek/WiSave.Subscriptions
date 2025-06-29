@@ -8,7 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="WiSave.Shared.EventStore" Version="1.0.2315" />
-      <PackageReference Include="WiSave.Shared.Types" Version="1.0.15207" />
+      <PackageReference Include="WiSave.Shared.Types" Version="1.0.25173" />
     </ItemGroup>
 
 </Project>

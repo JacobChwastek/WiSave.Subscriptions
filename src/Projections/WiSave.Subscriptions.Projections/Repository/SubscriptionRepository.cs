@@ -38,7 +38,9 @@ public class SubscriptionRepository : ISubscriptionRepository
         await _collection.ReplaceOneAsync(filter, model, new ReplaceOptions { IsUpsert = false }, cancellationToken);
     }
 
-    public async Task<(List<Subscription> Items, long TotalCount)> GetByUserIdAsync(string userId, string? name,
+    public async Task<(List<Subscription> Items, long TotalCount)> GetByUserIdAsync(
+        string userId, 
+        string? name,
         string? plan,
         bool? isTrial,
         int skip,
@@ -53,7 +55,13 @@ public class SubscriptionRepository : ISubscriptionRepository
             filters.Add(Builders<Subscription>.Filter.Regex(x => x.Name, new BsonRegularExpression(name, "i")));
 
         if (!string.IsNullOrWhiteSpace(plan))
-            filters.Add(Builders<Subscription>.Filter.Eq(x => x.Plan, plan));
+        {
+            filters.Add(Builders<Subscription>.Filter.ElemMatch(x => x.Plans, 
+                Builders<SubscriptionPlan>.Filter.And(
+                    Builders<SubscriptionPlan>.Filter.Eq(p => p.Name, plan),
+                    Builders<SubscriptionPlan>.Filter.Eq(p => p.IsActive, true)
+                )));
+        }
 
         if (isTrial.HasValue)
             filters.Add(Builders<Subscription>.Filter.Eq(x => x.IsTrial, isTrial));
@@ -74,5 +82,15 @@ public class SubscriptionRepository : ISubscriptionRepository
     public async Task InsertAsync(Subscription model, CancellationToken cancellationToken = default)
     {
         await _collection.InsertOneAsync(model, cancellationToken: cancellationToken);
+    }
+    
+    public async Task<decimal> GetTotalSpentAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
+    {
+        var subscription = await GetByIdAsync(subscriptionId, cancellationToken);
+        if (subscription == null) return 0;
+        
+        return subscription.Plans
+            .Where(p => p.IsActive)
+            .Sum(p => p.CurrentPrice?.Amount ?? 0);
     }
 }
